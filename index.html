@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>The Buy Back Scorecard</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #FFFFFF;
+  color: #1A1A1A;
+  min-height: 100vh;
+}
+
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: none;
+  flex-direction: column;
+}
+.page.active { display: flex; }
+
+/* ── TOP GOLD BAR ── */
+.gold-bar { height: 4px; background: #C9A84C; width: 100%; flex-shrink: 0; }
+
+/* ── INTRO ── */
+#intro { background: #fff; }
+
+.intro-body {
+  padding: 48px 28px 0;
+  flex: 1;
+}
+
+.intro-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #C9A84C;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.intro-h1 {
+  font-family: Georgia, serif;
+  font-size: clamp(32px, 8vw, 48px);
+  font-weight: 700;
+  color: #1A1A1A;
+  line-height: 1.12;
+  margin-bottom: 20px;
+}
+
+.intro-sub {
+  font-size: 17px;
+  color: #444444;
+  line-height: 1.72;
+  margin-bottom: 36px;
+}
+
+.verse-block {
+  border-left: 3px solid #C9A84C;
+  padding: 18px 20px;
+  background: #FAF8F4;
+  margin-bottom: 48px;
+}
+
+.verse-text {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  color: #444444;
+  line-height: 1.72;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.verse-ref {
+  font-size: 11px;
+  color: #C9A84C;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.intro-footer {
+  padding: 0 28px 48px;
+  border-top: 1px solid #E8E4E0;
+  padding-top: 28px;
+}
+
+/* ── BUTTONS ── */
+.btn-primary {
+  width: 100%;
+  background: #2E5E45;
+  color: #fff;
+  border: none;
+  padding: 22px 24px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.03em;
+  margin-bottom: 12px;
+  display: block;
+  text-align: center;
+}
+.btn-primary:active { background: #244d38; }
+
+.btn-outline {
+  width: 100%;
+  background: none;
+  color: #2E5E45;
+  border: 2px solid #2E5E45;
+  padding: 18px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  display: block;
+  text-align: center;
+}
+
+.btn-meta {
+  font-size: 13px;
+  color: #888888;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* ── QUESTIONS ── */
+#questions { background: #fff; }
+
+.q-topbar {
+  background: #fff;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #E8E4E0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.q-label {
+  font-size: 13px;
+  color: #2E5E45;
+  font-weight: 700;
+}
+
+.q-count {
+  font-size: 13px;
+  color: #888888;
+}
+
+.q-progress-track {
+  height: 3px;
+  background: #E8E4E0;
+}
+
+.q-progress-fill {
+  height: 3px;
+  background: #C9A84C;
+  transition: width 0.3s ease;
+}
+
+.q-body {
+  flex: 1;
+  padding: 44px 28px 24px;
+}
+
+.q-step {
+  font-size: 11px;
+  color: #C9A84C;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.q-text {
+  font-family: Georgia, serif;
+  font-size: clamp(22px, 5.5vw, 30px);
+  font-weight: 700;
+  color: #1A1A1A;
+  line-height: 1.25;
+  margin-bottom: 36px;
+}
+
+.choices { display: flex; flex-direction: column; gap: 12px; }
+
+.choice {
+  padding: 18px 20px;
+  background: #fff;
+  border: 2px solid #E0DDD8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  font-size: 15px;
+  color: #1A1A1A;
+  line-height: 1.4;
+  transition: all 0.15s;
+}
+
+.choice.picked {
+  background: #2E5E45;
+  border-color: #2E5E45;
+  color: #fff;
+  font-weight: 600;
+}
+
+.choice-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #C8C4BC;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.choice.picked .choice-dot {
+  border-color: #C9A84C;
+  background: #C9A84C;
+}
+
+.check { display: none; color: #2E5E45; font-size: 13px; font-weight: 800; }
+.choice.picked .check { display: block; }
+.choice.picked .dot-inner { display: none; }
+.dot-inner { width: 8px; height: 8px; border-radius: 50%; background: transparent; }
+
+.q-footer {
+  padding: 16px 28px 40px;
+  display: flex;
+  gap: 12px;
+  border-top: 1px solid #E8E4E0;
+}
+
+.btn-back {
+  background: none;
+  border: 2px solid #E0DDD8;
+  color: #888888;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-next {
+  flex: 1;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  cursor: not-allowed;
+  font-family: inherit;
+  background: #E0DDD8;
+  color: #888888;
+  transition: all 0.15s;
+}
+
+.btn-next.ready {
+  background: #2E5E45;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* ── EMAIL ── */
+#email { background: #fff; }
+
+.email-body {
+  padding: 56px 28px 0;
+  flex: 1;
+}
+
+.email-tag {
+  font-size: 11px;
+  color: #C9A84C;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.email-h {
+  font-family: Georgia, serif;
+  font-size: clamp(28px, 7vw, 38px);
+  font-weight: 700;
+  color: #1A1A1A;
+  line-height: 1.15;
+  margin-bottom: 14px;
+}
+
+.email-sub {
+  font-size: 16px;
+  color: #444444;
+  line-height: 1.65;
+  margin-bottom: 36px;
+}
+
+/* Reward cards */
+.reward-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+
+.reward-card {
+  padding: 20px 20px;
+  border: 2px solid #E0DDD8;
+  cursor: pointer;
+  background: #fff;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.reward-card.selected {
+  border-color: #2E5E45;
+  background: #F5FAF7;
+}
+
+.reward-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 6px;
+}
+
+.reward-card-sub {
+  font-size: 14px;
+  color: #666666;
+  line-height: 1.5;
+}
+
+.email-fields { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
+
+.email-input {
+  background: #FAF8F4;
+  border: 2px solid #E0DDD8;
+  color: #1A1A1A;
+  padding: 17px 18px;
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+  width: 100%;
+}
+
+.email-input:focus { border-color: #C9A84C; }
+.email-input::placeholder { color: #AAAAAA; }
+.email-input.error { border-color: #C0392B; }
+
+.email-footer { padding: 0 28px 52px; }
+
+.email-note { font-size: 12px; color: #888888; text-align: center; margin-top: 10px; }
+
+/* ── RESULT ── */
+#result { background: #fff; }
+
+.result-header {
+  background: #FAF8F4;
+  padding: 48px 28px 40px;
+  text-align: center;
+  border-bottom: 1px solid #E8E4E0;
+}
+
+.result-greeting { font-size: 14px; color: #888888; margin-bottom: 16px; }
+
+.result-score {
+  font-family: Georgia, serif;
+  font-size: 100px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.result-max { font-size: 15px; color: #888888; margin-bottom: 24px; }
+
+.result-badge {
+  display: inline-block;
+  border: 2px solid currentColor;
+  padding: 10px 24px;
+  margin-bottom: 32px;
+}
+
+.result-badge-text {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.bar-wrap { max-width: 280px; margin: 0 auto; }
+
+.bar-track {
+  height: 5px;
+  background: #E0DDD8;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.bar-fill {
+  height: 5px;
+  border-radius: 3px;
+  width: 0%;
+  transition: width 1.4s cubic-bezier(0.16,1,0.3,1);
+}
+
+.bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #888888;
+}
+
+.result-body { padding: 0 28px; }
+
+.result-section {
+  padding: 30px 0;
+  border-bottom: 1px solid #E8E4E0;
+}
+
+.section-label {
+  font-size: 11px;
+  color: #C9A84C;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.diagnosis-text {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  color: #444444;
+  line-height: 1.78;
+}
+
+.challenge-block {
+  border-left: 3px solid #C9A84C;
+  padding: 18px 20px;
+  background: #FAF8F4;
+  margin-bottom: 18px;
+}
+
+.challenge-verse {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  color: #444444;
+  line-height: 1.72;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.challenge-ref {
+  font-size: 11px;
+  color: #C9A84C;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.challenge-text {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  color: #2E5E45;
+  line-height: 1.75;
+  font-style: italic;
+}
+
+.cta-section { padding: 30px 0 52px; }
+
+.cta-title {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 14px;
+  line-height: 1.25;
+}
+
+.cta-body {
+  font-size: 15px;
+  color: #444444;
+  line-height: 1.72;
+  margin-bottom: 32px;
+}
+
+.price-line { text-align: center; margin-top: 14px; }
+.price-main { font-size: 22px; font-weight: 700; color: #1A1A1A; }
+.price-old { font-size: 15px; color: #AAAAAA; text-decoration: line-through; margin-left: 10px; }
+.price-note { font-size: 13px; color: #888888; margin-left: 10px; }
+</style>
+</head>
+<body>
+
+<!-- ══════ INTRO ══════ -->
+<div id="intro" class="page active">
+  <div class="gold-bar"></div>
+  <div class="intro-body">
+    <p class="intro-tag">The Buy Back Scorecard</p>
+    <h1 class="intro-h1">Does Your Business Own You?</h1>
+    <p class="intro-sub">Ten simple questions. Two minutes. Find out exactly where your business still depends on you — and what changes when that stops.</p>
+    <div class="verse-block">
+      <p class="verse-text">A man was never meant to be consumed by what he was given to build. He was meant to tend it — and grow beyond it.</p>
+    </div>
+  </div>
+  <div class="intro-footer">
+    <button class="btn-primary" onclick="startScorecard()">Take The Scorecard →</button>
+    <p class="btn-meta">Free · 10 questions · 2 minutes</p>
+  </div>
+</div>
+
+<!-- ══════ QUESTIONS ══════ -->
+<div id="questions" class="page">
+  <div class="q-topbar">
+    <span class="q-label">Buy Back Scorecard</span>
+    <span class="q-count" id="q-count">1 / 10</span>
+  </div>
+  <div class="q-progress-track">
+    <div class="q-progress-fill" id="q-progress" style="width:10%"></div>
+  </div>
+  <div class="q-body">
+    <p class="q-step" id="q-step">Question 01</p>
+    <h2 class="q-text" id="q-text"></h2>
+    <div class="choices" id="choices"></div>
+  </div>
+  <div class="q-footer">
+    <button class="btn-back" id="btn-back" onclick="goBack()" style="visibility:hidden">← Back</button>
+    <button class="btn-next" id="btn-next" onclick="goNext()">Next →</button>
+  </div>
+</div>
+
+<!-- ══════ EMAIL ══════ -->
+<div id="email" class="page">
+  <div class="gold-bar"></div>
+  <div class="email-body">
+    <p class="email-tag">Your Score Is Unique To You</p>
+    <h2 class="email-h">No two scores are the same.</h2>
+    <p class="email-sub">Scored by your answers, your consistency, and how you moved through each question. Leave your name and email to see where you landed.</p>
+
+    <div class="reward-cards">
+      <button class="reward-card" id="card-booklet" onclick="selectReward('booklet')">
+        <p class="reward-card-title">📘 The Free Booklet</p>
+        <p class="reward-card-sub">A short read that reframes everything you thought you knew about what you built.</p>
+      </button>
+      <button class="reward-card" id="card-assessment" onclick="selectReward('assessment')">
+        <p class="reward-card-title">📊 The Deep Assessment</p>
+        <p class="reward-card-sub">A deeper look at exactly where you are — and a direct conversation about what to do next.</p>
+      </button>
+    </div>
+
+    <div class="email-fields">
+      <input class="email-input" id="inp-name" type="text" placeholder="First name" />
+      <input class="email-input" id="inp-email" type="email" placeholder="Email address" />
+    </div>
+  </div>
+  <div class="email-footer">
+    <button class="btn-primary" onclick="submitEmail()">Show Me My Results →</button>
+    <p class="email-note">For the ones ready to build something different.</p>
+  </div>
+</div>
+
+<!-- ══════ RESULT ══════ -->
+<div id="result" class="page">
+  <div class="gold-bar" id="result-bar" style="background:#C9A84C"></div>
+
+  <div class="result-header">
+    <p class="result-greeting" id="result-greeting"></p>
+    <div class="result-score" id="result-score" style="color:#C9A84C">0</div>
+    <p class="result-max">out of 20</p>
+    <div class="result-badge" id="result-badge">
+      <p class="result-badge-text" id="result-badge-text"></p>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-track">
+        <div class="bar-fill" id="bar-fill"></div>
+      </div>
+      <div class="bar-labels">
+        <span>Trapped</span><span>Transitioning</span><span>Free CEO</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-body">
+    <div class="result-section">
+      <p class="section-label">What This Means</p>
+      <p class="diagnosis-text" id="diagnosis-text"></p>
+    </div>
+
+    <div class="result-section">
+      <div class="challenge-block">
+        <p class="challenge-verse">You were built to multiply — not to maintain. There is no fruit in a man who never steps back far enough to see what he has grown.</p>
+      </div>
+      <p class="challenge-text" id="challenge-text"></p>
+    </div>
+
+    <div class="cta-section">
+      <p class="section-label">Your Next Move</p>
+      
+      <p class="cta-body" id="cta-body"></p>
+      <button class="btn-primary" id="cta-btn" onclick="handleCTA()">Book Your Audit Call — $197 →</button>
+      <div class="price-line">
+        <span class="price-note" style="font-size:13px;color:#888;">30 minutes · If it's not worth it, you pay nothing</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  { q: "If you took 2 weeks off, would your business keep running?", choices: ["No — it would stop","Some things would run","Yes — fully"] },
+  { q: "When something goes wrong on a job, who fixes it?", choices: ["Always me","My crew tries, then me","My crew handles it"] },
+  { q: "Can someone on your team sign a new client without you?", choices: ["No — only me","Maybe with my approval","Yes — they do it"] },
+  { q: "Does your team know what to do each day without you?", choices: ["No — I tell them daily","Sometimes","Yes — always"] },
+  { q: "How do you feel when you think about the business growing?", choices: ["Stressed","Nervous but open","Ready for it"] },
+  { q: "When did you last take a real vacation without checking work?", choices: ["Never","I tried but checked in","Within the last year"] },
+  { q: "If you got sick for a month, would money still come in?", choices: ["No — stops with me","Some would come in","Yes — fully"] },
+  { q: "Do clients call you personally or call the business?", choices: ["Always me personally","Both","The business line"] },
+  { q: "Is there someone who could run things if you stepped back?", choices: ["No one","Maybe one day","Yes — right now"] },
+  { q: "If you sold today, what would someone be buying?", choices: ["Just me and my name","Some systems plus me","A business that runs itself"] },
+];
+
+const tiers = [
+  {
+    range: [0,6], label: "The Trapped Operator", color: "#C0392B", pct: 18,
+    diagnosis: "You built something real. But right now it can't run without you. Every decision flows through you. Revenue stops when you stop. That was never the life you pictured — and it doesn't have to stay this way.",
+    challenge: "The work was always supposed to serve you. The moment it started owning you — that was the moment something needed to change.",
+    cta: "30 minutes. We look at your score, your business, and map exactly what needs to shift first.",
+  },
+  {
+    range: [7,14], label: "The Transitioning Owner", color: "#C9A84C", pct: 58,
+    diagnosis: "You've started stepping back and it's working — in moments. But it still pulls you in. You're closer than you think and further than you'd like. The structure is partially there. The question is whether you finish building it.",
+    challenge: "You cannot grow what you cannot step back from. The gap closes the moment you decide to close it.",
+    cta: "30 minutes. We look at where you are and build the first moves to get you to the other side.",
+  },
+  {
+    range: [15,20], label: "The Free CEO", color: "#2E7D5E", pct: 94,
+    diagnosis: "Your business runs through systems and people — not through you. That's rare. Most owners never get here. The life you pictured when you started is beginning to look like the one you're actually living.",
+    challenge: "Most men stop when they get comfortable. You already proved the model works. The only question left is how far you take it.",
+    cta: "30 minutes. We map where your business can go from here — and what it takes to get there without adding more of yourself.",
+  },
+];
+
+let current = 0;
+let questionTimes = [];
+let questionStart = Date.now();
+let answers = new Array(questions.length).fill(null);
+let selectedReward = null;
+let totalScore = 0;
+
+function show(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function startScorecard() {
+  current = 0;
+  answers = new Array(questions.length).fill(null);
+  questionTimes = [];
+  questionStart = Date.now();
+  renderQ();
+  show('questions');
+}
+
+function renderQ() {
+  questionStart = Date.now();
+  const q = questions[current];
+  const total = questions.length;
+  document.getElementById('q-count').textContent = (current+1) + ' / ' + total;
+  document.getElementById('q-step').textContent = 'Question ' + String(current+1).padStart(2,'0');
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-progress').style.width = (((current+1)/total)*100) + '%';
+  document.getElementById('btn-back').style.visibility = current === 0 ? 'hidden' : 'visible';
+
+  const btn = document.getElementById('btn-next');
+  btn.textContent = current === total-1 ? 'See My Score →' : 'Next →';
+  btn.className = 'btn-next' + (answers[current] !== null ? ' ready' : '');
+
+  const container = document.getElementById('choices');
+  container.innerHTML = '';
+  q.choices.forEach((c,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice' + (answers[current] === i ? ' picked' : '');
+    btn.innerHTML = '<div class="choice-dot"><span class="check">✓</span><span class="dot-inner"></span></div><span>' + c + '</span>';
+    btn.onclick = () => pick(i);
+    container.appendChild(btn);
+  });
+}
+
+function pick(i) {
+  answers[current] = i;
+  document.querySelectorAll('.choice').forEach((el,idx) => {
+    el.className = 'choice' + (idx === i ? ' picked' : '');
+  });
+  document.getElementById('btn-next').className = 'btn-next ready';
+}
+
+function goNext() {
+  if (answers[current] === null) return;
+  questionTimes[current] = Date.now() - questionStart;
+  if (current < questions.length - 1) { current++; renderQ(); }
+  else { show('email'); }
+}
+
+function goBack() {
+  if (current > 0) { current--; renderQ(); }
+}
+
+function selectReward(type) {
+  selectedReward = type;
+  document.getElementById('card-booklet').className = 'reward-card' + (type === 'booklet' ? ' selected' : '');
+  document.getElementById('card-assessment').className = 'reward-card' + (type === 'assessment' ? ' selected' : '');
+}
+
+
+function calcScore() {
+  var base = answers.reduce(function(s,a,i){ return s + (a !== null ? a : 0); }, 0);
+  var highCount = answers.filter(function(a){ return a === 2; }).length;
+  var lowCount  = answers.filter(function(a){ return a === 0; }).length;
+  var avgTime   = questionTimes.length ? questionTimes.reduce(function(s,t){ return s+t; },0) / questionTimes.length : 5000;
+  var thoughtful = avgTime > 3000;
+  var modifier = 0;
+  if (thoughtful && highCount >= 7) modifier = 1;
+  if (!thoughtful && lowCount >= 7) modifier = -1;
+  return Math.min(20, Math.max(0, base + modifier));
+}
+
+function submitEmail() {
+  const name = document.getElementById('inp-name').value.trim();
+  const email = document.getElementById('inp-email').value.trim();
+  const ni = document.getElementById('inp-name');
+  const ei = document.getElementById('inp-email');
+  let ok = true;
+  if (!name) { ni.classList.add('error'); ok = false; } else { ni.classList.remove('error'); }
+  if (!email || !email.includes('@')) { ei.classList.add('error'); ok = false; } else { ei.classList.remove('error'); }
+  if (!ok) return;
+
+  totalScore = calcScore();
+  const tier = tiers.find(t => totalScore >= t.range[0] && totalScore <= t.range[1]) || tiers[0];
+  // Send to ConvertKit
+  fetch("https://app.convertkit.com/forms/1ee80c438b/subscriptions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email_address: email,
+      first_name: name,
+      fields: { freedom_score: String(totalScore), tier: tier.label, reward: selectedReward || "not selected" }
+    })
+  }).catch(function() {});
+
+  // Populate result
+  document.getElementById('result-greeting').textContent = name + ' — your Freedom Score';
+  document.getElementById('result-score').style.color = tier.color;
+  document.getElementById('result-badge').style.color = tier.color;
+  document.getElementById('result-badge-text').textContent = tier.label;
+  document.getElementById('bar-fill').style.background = tier.color;
+  document.getElementById('result-bar').style.background = tier.color;
+  document.getElementById('diagnosis-text').textContent = tier.diagnosis;
+  document.getElementById('challenge-text').textContent = tier.challenge;
+  document.getElementById('cta-body').textContent = tier.cta;
+
+  show('result');
+
+  // Update CTA button based on reward chosen
+  var ctaBtn = document.getElementById('cta-btn');
+  if (selectedReward === 'assessment') {
+    ctaBtn.textContent = 'Start The 90-Day Sprint — $2,500 →';
+  } else {
+    ctaBtn.textContent = 'Book Your Audit Call — $197 →';
+  }
+
+  // Animate score
+  let n = 0;
+  const el = document.getElementById('result-score');
+  el.textContent = '0';
+  const iv = setInterval(() => {
+    n++;
+    el.textContent = n;
+    if (n >= totalScore) clearInterval(iv);
+  }, 90);
+
+  // Animate bar
+  setTimeout(() => {
+    document.getElementById('bar-fill').style.width = tier.pct + '%';
+  }, 400);
+}
+
+function handleCTA() {
+  if (selectedReward === 'assessment') {
+    // Deep assessment path — 90-day sprint offer
+    window.location.href = 'https://buy.stripe.com/dRm6oHcnC011595eec3gk01';
+  } else {
+    // Booklet path or default — audit call
+    window.location.href = 'https://buy.stripe.com/eVq6oH73ibJJcBx0nm3gk00';
+  }
+}
+</script>
+</body>
+</html>
